@@ -30,6 +30,10 @@ time; the only "build" step inlines the spritesheet into the client bundle (see 
   The clips are synthesized offline with Windows SAPI TTS and baked into the bundle as data URIs —
   nothing to download, and you can drop in your own clips by replacing `assets/click-*.wav` and
   rebuilding.
+- 🔔 **Waiting reminders** — when a session is **waiting for you to answer** (`ask_user_question`) or
+  **approve an action** (`approval/asked`), the chick pops a reminder bubble (with the session name),
+  plays a little attention hop, and shows a pulsing `!` badge until the interaction is resolved. Click
+  the bubble to dismiss it; it disappears automatically once you answer/approve.
 - 💬 **Speech bubble** — click the chick for a random catchphrase plus, when configured, your
   **DeepSeek balance** and **today's observed spend**. The bubble auto-dismisses.
 - 💰 **Balance badge** — a compact `¥` pill above the pet, refreshed every 60s from
@@ -83,6 +87,7 @@ Manual install (equivalent):
 | Click the chick | Toggle the speech bubble (phrase + balance) |
 | Right-click the chick | Open the settings menu |
 | Menu → 点击音效 / Click sound | Off / Nailong laugh / 唱跳rap (picking one previews it) |
+| A session waits for you | Pet auto-pops a reminder bubble + pulsing `!`; dismiss by click, auto-clears when resolved |
 | Menu → 大小 / Size | S / M / L |
 | Menu → 动画 / Motion | Slow / Normal / Fast |
 | Menu → 刷新余额 / Refresh balance | Force an immediate balance fetch |
@@ -142,6 +147,11 @@ dsh-ikunchick-pet/
   two click WAVs are inlined as base64 data URIs.) Refresh the GUI to pick up client changes.
 - Host changes (`lib/index.js`) require a patch reload (toggle the `insert` row) — do **not** restart
   the whole desktop process.
+- **Waiting detection** (host) — the host subscribes to `ctx.on('session/event', …)` and tracks the
+  latest suspended interaction: `tool/call` with `name: 'ask_user_question'` → question,
+  `approval/asked` → approval; cleared by `tool/result`, other `approval/*`, or `turn/start|end`. The
+  browser polls `POST /api/dsh-ikunchick-pet/wait` (every 1.5 s) and pops the reminder on a new
+  pending `id`.
 - Quick checks: `node --check lib/index.js`, `node --check lib/client.js`, and
   `node scripts/build-client.mjs`.
 

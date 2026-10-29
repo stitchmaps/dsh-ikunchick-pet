@@ -1,6 +1,6 @@
 {
   "name": "dsh-ikunchick-pet",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DSH 右下角常驻的「鸡你太美」篮球小鸡桌面宠物：像素帧动画（运球/招手/休息/庆祝）、拖拽吸附、贴左镜像、Q 弹按压、语音气泡与 DeepSeek 余额/今日已用。",
   "icon": "icon.svg",
   "author": "gary",

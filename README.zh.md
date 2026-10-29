@@ -23,6 +23,9 @@ bundle（见 [开发](#开发)）。
 - 🔊 **点击音效** —— 点击时播放两段内置语音：**奶龙笑** 或 **唱跳rap篮球（坤坤）**；右键菜单可切换或关闭
   （选中即试听）。音频用 Windows SAPI 语音离线合成后以 data URI 烘焙进 bundle —— 无需下载；想换真·原声，
   替换 `assets/click-*.wav` 后重新构建即可。
+- 🔔 **等待提醒** —— 当某个会话在**等你回答**（`ask_user_question`）或**等你授权**（`approval/asked`）时，
+  小鸡会弹出一个提醒气泡（带会话名）、蹦一下吸引注意，并在头顶显示脉冲 `!`；点气泡可收起，处理完
+  问题/授权后自动消失。
 - 💬 **语音气泡** —— 点击小鸡随机说一句台词，并在已配置时显示 **DeepSeek 余额** 与
   **今日已观测消费**。气泡会自动收起。
 - 💰 **余额角标** —— 头顶一枚紧凑的 `¥` 药丸，每 60 秒经 DSH 凭据服务（`DEEPSEEK_API_KEY`）
@@ -74,6 +77,7 @@ pwsh -File .\install.ps1
 | 点击小鸡 | 切换语音气泡（台词 + 余额） |
 | 右键小鸡 | 打开设置菜单 |
 | 菜单 → 点击音效 | 关 / 奶龙笑 / 唱跳rap（选中即试听） |
+| 会话等待回答/授权 | 小鸡自动弹提醒气泡 + 头顶脉冲「!」；点气泡收起，处理完自动消失 |
 | 菜单 → 大小 | 小 / 中 / 大 |
 | 菜单 → 动画 | 慢 / 常 / 快 |
 | 菜单 → 刷新余额 | 立即拉取余额 |
@@ -131,6 +135,10 @@ dsh-ikunchick-pet/
   （客户端模块只能 `require('react')`，不能加载本地文件，所以 webp 与两段点击 WAV 都以 base64 data URI 内联。）
   刷新 GUI 即可看到客户端改动。
 - 宿主改动（`lib/index.js`）需要 patch 热重载（切换 `insert` 行）—— 不要重启整个桌面进程。
+- **等待检测**（宿主）—— 订阅 `ctx.on('session/event', …)`，跟踪最新的挂起交互：
+  `tool/call` 且 `name: 'ask_user_question'` → 提问；`approval/asked` → 授权；由 `tool/result`、
+  其它 `approval/*`、或 `turn/start|end` 清除。浏览器每 1.5 秒轮询
+  `POST /api/dsh-ikunchick-pet/wait`，遇到新的 pending `id` 就弹出提醒。
 - 快速检查：`node --check lib/index.js`、`node --check lib/client.js`、`node scripts/build-client.mjs`。
 
 ## 许可证
