@@ -16,6 +16,8 @@ time; the only "build" step inlines the spritesheet into the client bundle (see 
 
 ![waiting reminder](docs/reminder.png)
 
+![per-turn cost](docs/consume.png)
+
 ## Features
 
 - 🐤 **Always-on corner pet** — mounts into `shell.overlay` (covers the whole frame), draggable
@@ -36,6 +38,9 @@ time; the only "build" step inlines the spritesheet into the client bundle (see 
   **approve an action** (`approval/asked`), the chick pops a reminder bubble (with the session name),
   plays a little attention hop, and shows a pulsing `!` badge until the interaction is resolved. Click
   the bubble to dismiss it; it disappears automatically once you answer/approve.
+- 💸 **Per-turn consumption** — when a turn finishes, the chick pops a **本轮消耗** bubble with the ¥
+  amount, token count and model, computed from the real `usage` (input / cache / output) at DeepSeek
+  peak/off-peak pricing. Auto-dismisses after a few seconds.
 - 💬 **Speech bubble** — click the chick for a random catchphrase plus, when configured, your
   **DeepSeek balance** and **today's observed spend**. The bubble auto-dismisses.
 - 💰 **Balance badge** — a compact `¥` pill above the pet, refreshed every 60s from
@@ -90,6 +95,7 @@ Manual install (equivalent):
 | Right-click the chick | Open the settings menu |
 | Menu → 点击音效 / Click sound | Off / Nailong laugh / 唱跳rap (picking one previews it) |
 | A session waits for you | Pet auto-pops a reminder bubble + pulsing `!`; dismiss by click, auto-clears when resolved |
+| A conversation turn finishes | Pet pops a per-turn cost bubble (¥ + tokens + model) |
 | Menu → 大小 / Size | S / M / L |
 | Menu → 动画 / Motion | Slow / Normal / Fast |
 | Menu → 刷新余额 / Refresh balance | Force an immediate balance fetch |
@@ -154,6 +160,11 @@ dsh-ikunchick-pet/
   `approval/asked` → approval; cleared by `tool/result`, other `approval/*`, or `turn/start|end`. The
   browser polls `POST /api/dsh-ikunchick-pet/wait` (every 1.5 s) and pops the reminder on a new
   pending `id`.
+- **Per-turn cost** (host) — aggregates `assistant/message` `usage` (`inputTokens` + `cacheReadTokens`
+  + `outputTokens`) per `(session, turn)` and settles on `turn/end` using the price table at the top of
+  `lib/index.js` (`PRICE_FLASH` / `PRICE_PRO`, peak = weekday 09–12 & 14–18 Beijing). Each settled turn
+  bumps a persisted `seq`; the browser polls `POST /api/dsh-ikunchick-pet/turn` and pops the cost bubble
+  when `seq` changes. Subagent sessions are excluded.
 - Quick checks: `node --check lib/index.js`, `node --check lib/client.js`, and
   `node scripts/build-client.mjs`.
 

@@ -15,6 +15,8 @@ bundle（见 [开发](#开发)）。
 
 ![等待提醒](docs/reminder.png)
 
+![每轮消耗](docs/consume.png)
+
 ## 特性
 
 - 🐤 **常驻角落宠物** —— 挂载进 `shell.overlay`（覆盖整个窗口），可拖动到任意位置，刷新后记住位置。
@@ -28,6 +30,8 @@ bundle（见 [开发](#开发)）。
 - 🔔 **等待提醒** —— 当某个会话在**等你回答**（`ask_user_question`）或**等你授权**（`approval/asked`）时，
   小鸡会弹出一个提醒气泡（带会话名）、蹦一下吸引注意，并在头顶显示脉冲 `!`；点气泡可收起，处理完
   问题/授权后自动消失。
+- 💸 **每轮消耗** —— 一轮对话结束时，小鸡弹出 **本轮消耗** 气泡：¥ 金额 + Token 数 + 模型
+  （由真实 `usage`（输入/缓存/输出）按 DeepSeek 峰谷价换算），几秒后自动收起。
 - 💬 **语音气泡** —— 点击小鸡随机说一句台词，并在已配置时显示 **DeepSeek 余额** 与
   **今日已观测消费**。气泡会自动收起。
 - 💰 **余额角标** —— 头顶一枚紧凑的 `¥` 药丸，每 60 秒经 DSH 凭据服务（`DEEPSEEK_API_KEY`）
@@ -80,6 +84,7 @@ pwsh -File .\install.ps1
 | 右键小鸡 | 打开设置菜单 |
 | 菜单 → 点击音效 | 关 / 奶龙笑 / 唱跳rap（选中即试听） |
 | 会话等待回答/授权 | 小鸡自动弹提醒气泡 + 头顶脉冲「!」；点气泡收起，处理完自动消失 |
+| 一轮对话结束 | 小鸡弹出「本轮消耗」气泡（¥ + Token + 模型） |
 | 菜单 → 大小 | 小 / 中 / 大 |
 | 菜单 → 动画 | 慢 / 常 / 快 |
 | 菜单 → 刷新余额 | 立即拉取余额 |
@@ -141,6 +146,10 @@ dsh-ikunchick-pet/
   `tool/call` 且 `name: 'ask_user_question'` → 提问；`approval/asked` → 授权；由 `tool/result`、
   其它 `approval/*`、或 `turn/start|end` 清除。浏览器每 1.5 秒轮询
   `POST /api/dsh-ikunchick-pet/wait`，遇到新的 pending `id` 就弹出提醒。
+- **每轮消耗**（宿主）—— 按 `(session, turn)` 聚合 `assistant/message` 的 `usage`（`inputTokens`
+  + `cacheReadTokens` + `outputTokens`），在 `turn/end` 用 `lib/index.js` 顶部价目表（`PRICE_FLASH` /
+  `PRICE_PRO`；高峰 = 工作日 9–12、14–18 北京时间）结算；每次结算 `seq` 自增并持久化，浏览器轮询
+  `POST /api/dsh-ikunchick-pet/turn` 检测到变化即弹消耗气泡。子智能体会话不计。
 - 快速检查：`node --check lib/index.js`、`node --check lib/client.js`、`node scripts/build-client.mjs`。
 
 ## 许可证
