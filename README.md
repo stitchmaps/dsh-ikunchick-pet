@@ -14,6 +14,8 @@ time; the only "build" step inlines the spritesheet into the client bundle (see 
 
 ![dribble preview](docs/preview-dribble.webp)
 
+![waiting reminder](docs/reminder.png)
+
 ## Features
 
 - 🐤 **Always-on corner pet** — mounts into `shell.overlay` (covers the whole frame), draggable

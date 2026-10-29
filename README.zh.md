@@ -13,6 +13,8 @@ bundle（见 [开发](#开发)）。
 
 ![运球预览](docs/preview-dribble.webp)
 
+![等待提醒](docs/reminder.png)
+
 ## 特性
 
 - 🐤 **常驻角落宠物** —— 挂载进 `shell.overlay`（覆盖整个窗口），可拖动到任意位置，刷新后记住位置。
