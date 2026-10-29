@@ -25,6 +25,11 @@ time; the only "build" step inlines the spritesheet into the client bundle (see 
   horizontally mirrors so it faces the content. Vertical position is clamped to the viewport.
 - 🧸 **Q-bounce press** — pressing squashes the sprite with a spring-back transition, optional soft
   "boing" (WebAudio, no audio asset).
+- 🔊 **Click sounds** — two built-in clips play on click: **奶龙笑 (Nailong laugh)** and
+  **唱跳rap篮球 (Kunkun's line)**; switch or mute from the right-click menu (picking one previews it).
+  The clips are synthesized offline with Windows SAPI TTS and baked into the bundle as data URIs —
+  nothing to download, and you can drop in your own clips by replacing `assets/click-*.wav` and
+  rebuilding.
 - 💬 **Speech bubble** — click the chick for a random catchphrase plus, when configured, your
   **DeepSeek balance** and **today's observed spend**. The bubble auto-dismisses.
 - 💰 **Balance badge** — a compact `¥` pill above the pet, refreshed every 60s from
@@ -77,6 +82,7 @@ Manual install (equivalent):
 | Drag the chick | Move it; release near an edge to snap |
 | Click the chick | Toggle the speech bubble (phrase + balance) |
 | Right-click the chick | Open the settings menu |
+| Menu → 点击音效 / Click sound | Off / Nailong laugh / 唱跳rap (picking one previews it) |
 | Menu → 大小 / Size | S / M / L |
 | Menu → 动画 / Motion | Slow / Normal / Fast |
 | Menu → 刷新余额 / Refresh balance | Force an immediate balance fetch |
@@ -119,7 +125,10 @@ dsh-ikunchick-pet/
 │  ├─ client.src.js        # readable browser source (sprite placeholder)
 │  └─ client.js            # BUILT bundle (sprite inlined) — what ships
 ├─ assets/spritesheet.webp # pixel art source
-├─ scripts/build-client.mjs# inlines the sprite into lib/client.js
+├─ assets/click-kun.wav     # 唱跳rap篮球 click clip (SAPI-synthesized)
+├─ assets/click-nailong.wav # 奶龙笑 click clip (SAPI-synthesized)
+├─ scripts/build-client.mjs # inlines sprite + click clips into lib/client.js
+├─ scripts/process-audio.py # trim/normalize/speed the raw SAPI clips into assets/
 ├─ docs/panel.png, preview-dribble.webp
 ├─ install.ps1
 └─ README.md / README.zh.md
@@ -129,8 +138,8 @@ dsh-ikunchick-pet/
   ```powershell
   node scripts/build-client.mjs
   ```
-  (The client module may only `require('react')` — it cannot load local files — so the webp is
-  inlined as a base64 data URI.) Refresh the GUI to pick up client changes.
+  (The client module may only `require('react')` — it cannot load local files — so the webp and the
+  two click WAVs are inlined as base64 data URIs.) Refresh the GUI to pick up client changes.
 - Host changes (`lib/index.js`) require a patch reload (toggle the `insert` row) — do **not** restart
   the whole desktop process.
 - Quick checks: `node --check lib/index.js`, `node --check lib/client.js`, and

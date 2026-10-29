@@ -14,16 +14,26 @@ const here = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(here, '..')
 const srcPath = path.join(root, 'lib', 'client.src.js')
 const assetPath = path.join(root, 'assets', 'spritesheet.webp')
+const kunPath = path.join(root, 'assets', 'click-kun.wav')
+const nailongPath = path.join(root, 'assets', 'click-nailong.wav')
 const outPath = path.join(root, 'lib', 'client.js')
 
 const src = await fs.readFile(srcPath, 'utf8')
-const placeholder = "'__SPRITE_DATA_URI__'"
-if (!src.includes(placeholder)) {
-  throw new Error(`placeholder ${placeholder} not found in client.src.js`)
-}
 const webp = await fs.readFile(assetPath)
-const dataUri = 'data:image/webp;base64,' + webp.toString('base64')
-const built = src.split(placeholder).join("'" + dataUri + "'")
-if (built.includes(placeholder)) throw new Error('placeholder remained after replace')
+const kun = await fs.readFile(kunPath)
+const nailong = await fs.readFile(nailongPath)
+
+const splices = [
+  ["'__SPRITE_DATA_URI__'", "'data:image/webp;base64," + webp.toString('base64') + "'"],
+  ["'__CLICK_KUN_URI__'", "'data:audio/wav;base64," + kun.toString('base64') + "'"],
+  ["'__CLICK_NAILONG_URI__'", "'data:audio/wav;base64," + nailong.toString('base64') + "'"],
+]
+let built = src
+for (const [needle, value] of splices) {
+  if (!built.includes(needle)) throw new Error(`placeholder ${needle} not found in client.src.js`)
+  built = built.split(needle).join(value)
+  if (built.includes(needle)) throw new Error(`placeholder ${needle} remained after replace`)
+}
 await fs.writeFile(outPath, built, 'utf8')
-console.log(`built ${path.relative(root, outPath)}  (sprite ${(webp.length / 1024).toFixed(1)} KB, bundle ${(built.length / 1024).toFixed(1)} KB)`)
+const kb = (n) => (n / 1024).toFixed(1) + ' KB'
+console.log(`built ${path.relative(root, outPath)}  (sprite ${kb(webp.length)}, kun ${kb(kun.length)}, nailong ${kb(nailong.length)}, bundle ${kb(built.length)})`)
