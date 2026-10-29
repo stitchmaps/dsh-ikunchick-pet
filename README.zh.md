@@ -17,6 +17,8 @@ bundle（见 [开发](#开发)）。
 
 ![每轮消耗](docs/consume.png)
 
+![账单](docs/ledger.png)
+
 ## 特性
 
 - 🐤 **常驻角落宠物** —— 挂载进 `shell.overlay`（覆盖整个窗口），可拖动到任意位置，刷新后记住位置。
@@ -32,6 +34,8 @@ bundle（见 [开发](#开发)）。
   问题/授权后自动消失。
 - 💸 **每轮消耗** —— 一轮对话结束时，小鸡弹出 **本轮消耗** 气泡：¥ 金额 + Token 数 + 模型
   （由真实 `usage`（输入/缓存/输出）按 DeepSeek 峰谷价换算），几秒后自动收起。
+- 📊 **账单** —— 右键 →「查看账单」打开面板：**今日 / 近7天 / 累计** 消耗、近7天柱状图、以及最近每轮
+  明细（时间 / 模型 / ¥ / Token）。明细持久化到 `ledger.json`（保留最近 300 轮），重启不丢。
 - 💬 **语音气泡** —— 点击小鸡随机说一句台词，并在已配置时显示 **DeepSeek 余额** 与
   **今日已观测消费**。气泡会自动收起。
 - 💰 **余额角标** —— 头顶一枚紧凑的 `¥` 药丸，每 60 秒经 DSH 凭据服务（`DEEPSEEK_API_KEY`）
@@ -84,6 +88,7 @@ pwsh -File .\install.ps1
 | 右键小鸡 | 打开设置菜单 |
 | 菜单 → 点击音效 | 关 / 奶龙笑 / 唱跳rap（选中即试听） |
 | 会话等待回答/授权 | 小鸡自动弹提醒气泡 + 头顶脉冲「!」；点气泡收起，处理完自动消失 |
+| 菜单 → 查看账单 | 今日 / 近7天 / 累计 + 近7天柱状 + 最近每轮明细 |
 | 一轮对话结束 | 小鸡弹出「本轮消耗」气泡（¥ + Token + 模型） |
 | 菜单 → 大小 | 小 / 中 / 大 |
 | 菜单 → 动画 | 慢 / 常 / 快 |
@@ -96,6 +101,8 @@ pwsh -File .\install.ps1
 - 设置/位置：`%DSH_HOME%\dsh-ikunchick-pet\state.json`（原子写，宿主端归一化）。
 - 按日余额账本：`%DSH_HOME%\dsh-ikunchick-pet\usage.json` —— 只存日期、最近观测余额、累计观测下降额；
   充值（余额上升）会被忽略，绝不冲减消费。
+- 每轮消耗明细：`%DSH_HOME%\dsh-ikunchick-pet\ledger.json` —— 最近 300 轮（时间戳、¥ 金额、Token 拆分、
+  模型、会话标题），不存任何消息或提示词内容。
 - DeepSeek API key **绝不**写入插件自己的文件：每次请求时经 DSH 凭据服务解析，只用于一次
   `GET /user/balance`，用完即弃。
 
@@ -122,7 +129,7 @@ dsh-ikunchick-pet/
 ├─ cordis.patch.yml        # 加载 insert 行
 ├─ icon.svg
 ├─ lib/
-│  ├─ index.js             # 宿主半侧：/api/dsh-ikunchick-pet/{state,balance}
+│  ├─ index.js             # 宿主半侧：/api/dsh-ikunchick-pet/{state,balance,wait,turn,ledger}
 │  ├─ client.src.js        # 可读源码（含精灵占位符）
 │  └─ client.js            # 构建产物（已内联精灵图）—— 实际发布
 ├─ assets/spritesheet.webp # 像素原图
@@ -150,6 +157,9 @@ dsh-ikunchick-pet/
   + `cacheReadTokens` + `outputTokens`），在 `turn/end` 用 `lib/index.js` 顶部价目表（`PRICE_FLASH` /
   `PRICE_PRO`；高峰 = 工作日 9–12、14–18 北京时间）结算；每次结算 `seq` 自增并持久化，浏览器轮询
   `POST /api/dsh-ikunchick-pet/turn` 检测到变化即弹消耗气泡。子智能体会话不计。
+- **账单**（宿主）—— 每次结算把明细追加进 `ledger.json`（原子 rename，上限 300 条）；
+  `POST /api/dsh-ikunchick-pet/ledger` 返回最近明细 + 聚合（今日 / 近7天 / 累计 / 按模型 / 近7天序列），
+  均按北京时间统计。
 - 快速检查：`node --check lib/index.js`、`node --check lib/client.js`、`node scripts/build-client.mjs`。
 
 ## 许可证

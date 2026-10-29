@@ -18,6 +18,8 @@ time; the only "build" step inlines the spritesheet into the client bundle (see 
 
 ![per-turn cost](docs/consume.png)
 
+![usage ledger](docs/ledger.png)
+
 ## Features
 
 - 🐤 **Always-on corner pet** — mounts into `shell.overlay` (covers the whole frame), draggable
@@ -41,6 +43,9 @@ time; the only "build" step inlines the spritesheet into the client bundle (see 
 - 💸 **Per-turn consumption** — when a turn finishes, the chick pops a **本轮消耗** bubble with the ¥
   amount, token count and model, computed from the real `usage` (input / cache / output) at DeepSeek
   peak/off-peak pricing. Auto-dismisses after a few seconds.
+- 📊 **Usage ledger** — right-click → **查看账单** opens a panel with **today / last 7 days / total**
+  spend, a 7-day bar chart, and the most recent turns (time, model, ¥, tokens). Persisted to
+  `ledger.json` (last 300 turns) so it survives restarts.
 - 💬 **Speech bubble** — click the chick for a random catchphrase plus, when configured, your
   **DeepSeek balance** and **today's observed spend**. The bubble auto-dismisses.
 - 💰 **Balance badge** — a compact `¥` pill above the pet, refreshed every 60s from
@@ -99,6 +104,7 @@ Manual install (equivalent):
 | Menu → 大小 / Size | S / M / L |
 | Menu → 动画 / Motion | Slow / Normal / Fast |
 | Menu → 刷新余额 / Refresh balance | Force an immediate balance fetch |
+| Menu → 查看账单 / View ledger | Today / 7-day / total spend, 7-day bars, recent turns |
 | Menu → 回到右下角 / Back to corner | Reset position |
 | Menu → 隐藏小鸡 / Hide chick | Hide; a `🐤` button stays at the corner to call it back |
 
@@ -107,6 +113,8 @@ Manual install (equivalent):
 - Settings/position: `%DSH_HOME%\dsh-ikunchick-pet\state.json` (atomic write, normalized on the host).
 - Per-day balance ledger: `%DSH_HOME%\dsh-ikunchick-pet\usage.json` — only a date, last observed
   balance and accumulated observed drop. Recharges are ignored, never subtracted.
+- Per-turn usage ledger: `%DSH_HOME%\dsh-ikunchick-pet\ledger.json` — the last 300 settled turns
+  (timestamp, ¥ amount, token splits, model, session title). No messages or prompts are stored.
 - The DeepSeek API key is **never** read into the plugin's own files: it is resolved through the DSH
   credentials service at request time, used for one `GET /user/balance`, and discarded.
 
@@ -134,7 +142,7 @@ dsh-ikunchick-pet/
 ├─ cordis.patch.yml        # loader insert row
 ├─ icon.svg
 ├─ lib/
-│  ├─ index.js             # host half: /api/dsh-ikunchick-pet/{state,balance}
+│  ├─ index.js             # host half: /api/dsh-ikunchick-pet/{state,balance,wait,turn,ledger}
 │  ├─ client.src.js        # readable browser source (sprite placeholder)
 │  └─ client.js            # BUILT bundle (sprite inlined) — what ships
 ├─ assets/spritesheet.webp # pixel art source
@@ -165,6 +173,9 @@ dsh-ikunchick-pet/
   `lib/index.js` (`PRICE_FLASH` / `PRICE_PRO`, peak = weekday 09–12 & 14–18 Beijing). Each settled turn
   bumps a persisted `seq`; the browser polls `POST /api/dsh-ikunchick-pet/turn` and pops the cost bubble
   when `seq` changes. Subagent sessions are excluded.
+- **Usage ledger** (host) — each settled turn is appended to `ledger.json` (atomic rename, capped at
+  300). `POST /api/dsh-ikunchick-pet/ledger` returns the recent entries plus aggregates (today / 7-day /
+  all / by-model / last-7-day series), computed in Beijing time.
 - Quick checks: `node --check lib/index.js`, `node --check lib/client.js`, and
   `node scripts/build-client.mjs`.
 
