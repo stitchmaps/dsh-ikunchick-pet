@@ -1,0 +1,60 @@
+{
+  "name": "dsh-ikunchick-pet",
+  "version": "0.1.0",
+  "description": "DSH 右下角常驻的「鸡你太美」篮球小鸡桌面宠物：像素帧动画（运球/招手/休息/庆祝）、拖拽吸附、贴左镜像、Q 弹按压、语音气泡与 DeepSeek 余额/今日已用。",
+  "icon": "icon.svg",
+  "author": "gary",
+  "type": "module",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": ">=0.2.0-rc.2 || >=0.2.1-rc.2"
+  },
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "icon.svg",
+    "lib/client.js",
+    "lib/index.js",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-workspace"
+      ],
+      "platform": "web"
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.2.0-rc.2": "compatible",
+        "0.2.1-rc.2": "compatible"
+      }
+    }
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "cordis",
+    "plugin",
+    "pet",
+    "desktop-pet",
+    "widget",
+    "balance",
+    "ikun",
+    "basketball",
+    "pixel-art"
+  ],
+  "license": "MIT"
+}

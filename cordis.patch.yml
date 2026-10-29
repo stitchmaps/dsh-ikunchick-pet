@@ -1,0 +1,6 @@
+# Bundle patch layer: load this package's main entry as the host half (a plain
+# Cordis plugin). The `dsh.client` declaration in package.json makes the web app
+# load its ./client bundle as the browser half (a floating pet in `shell.overlay`).
+- insert:
+    - id: dsh-ikunchick-pet
+      name: dsh-ikunchick-pet

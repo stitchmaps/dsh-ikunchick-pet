@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+  <!-- basketball -->
+  <circle cx="7" cy="17" r="4.2" fill="#F5A623" stroke="#8a4b0a" stroke-width="1.1"/>
+  <path d="M3.2 16.2c2.4.5 5.4.5 7.6 0M7 12.9c-.5 2.4-.5 5.4 0 7.6" stroke="#8a4b0a" stroke-width="1.1" stroke-linecap="round"/>
+  <!-- chick body -->
+  <ellipse cx="14.4" cy="13" rx="5.2" ry="5.6" fill="#FFD23F" stroke="#c99912" stroke-width="1.1"/>
+  <!-- white hair -->
+  <path d="M9.6 8.4c1-2.3 3.6-3.2 5.6-2.4 1.9.7 3.2 2.4 3.2 4.1-1.6-1.3-3.9-1.4-5.6-.6-1.2.6-2.2 1.5-2.7 2.5-.6-.9-.9-2.2-.5-3.6z" fill="#F4F4F4" stroke="#bdbdbd" stroke-width="1"/>
+  <!-- eye -->
+  <circle cx="16.2" cy="12.1" r="1.1" fill="#222"/>
+  <!-- beak -->
+  <path d="M18.6 14.1l3.1.9-3.1 1z" fill="#F5A623" stroke="#c97b12" stroke-width=".9" stroke-linejoin="round"/>
+  <!-- cheek -->
+  <circle cx="12.1" cy="14.6" r="1.2" fill="#FF8FA3" opacity=".9"/>
+</svg>
